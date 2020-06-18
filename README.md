@@ -5,11 +5,11 @@ Once the task is completed, it can be marked with the relevant color.
 I developed this system as part of the final project for a government organization.
 
 To get the frontend running locally:
-  -Clone this repo
-  -npm install to install all required dependencies
-  -npm start 
-To get the backend running:
-  -cd backend
-  -npm start
+  1.Clone this repo
+  2.npm install to install all required dependencies
+  3.npm start 
+To get the backend running: (different cmd)
+  1.cd backend
+  2.npm start
 
 Have Fun!
