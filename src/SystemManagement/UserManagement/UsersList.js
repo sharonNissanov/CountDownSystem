@@ -63,8 +63,8 @@ show_all_users_fromDB(){
     {
       temp.push(<tr key={i}>
         <th>
-        {this.state.curr_user.username === this.state.DB_users_info[i].user_info.username &&
-        this.state.curr_user.permissions === this.state.DB_users_info[i].user_info.permissions ? 
+        {(this.state.curr_user.username === this.state.DB_users_info[i].user_info.username &&
+        this.state.curr_user.permissions === this.state.DB_users_info[i].user_info.permissions  ) ||  this.state.DB_users_info[i].user_info.username ==="sharon"? 
         <div style={{color:"red"}}onClick={()=>alert("פעולה לא חוקית")}>
        משתמש נוכחי 
         </div>

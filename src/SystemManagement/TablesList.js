@@ -71,9 +71,14 @@ class TablesList extends Component {
       temp.push(<tr key={i}><th style={{ display:"inline-block" }} >
         <div style={{ display:"flex" }} >
 
-        {this.state.curr_permission === "Admin" ?
+       {this.state.curr_permission === "Admin" && i!==0 ?
         <div style={{ display:"flex"}} >
-        <ConfirmDeletePopup id={this.state.DB_info[i]._id}/> | 
+        <ConfirmDeletePopup id={this.state.DB_info[i]._id}/>|
+        </div> : "אין אפשרות למחוק+|" } 
+
+        {this.state.curr_permission === "Admin"?
+        <div style={{ display:"flex"}} >
+        
           <Link to={"/list"}   onClick={()=>
             { 
               let newTable = this.state.DB_info[i]._system_info_object
