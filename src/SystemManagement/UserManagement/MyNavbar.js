@@ -59,7 +59,7 @@ render() {
   " " +this.state.chosen_system_title +" - ":
    null} 
 
-  מערכת פעימה
+  מערכת ניהול פעילויות
   </h4> 
   <div style={{textAlign:"center"}}>{this.state._user_already_logged===true ? 
    this.state._user_name+" "+this.state._user_permissions +" "+ ":שלום"  : "יש להתחבר למערכת"}

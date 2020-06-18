@@ -288,6 +288,8 @@ if(window.location.pathname ==='/display')
     return (
 
         <div>  
+            {/* <h4 style={{textAlign:"center"  }}>rfrfrf</h4> */}
+        <div>  
         {this.createTimeColumn()}
         {this.createMissionColumn()}
         {this.createAllEvents()}
@@ -297,7 +299,7 @@ if(window.location.pathname ==='/display')
         <CountDownAddEntityButton/>
         <CountDownBar/>
       
-
+        </div>
         </div>
         
     )

@@ -230,7 +230,7 @@ if(window.location.pathname ==='/display')
         <div>
         {this.addRow()}
         {this.deleteRow()}
-        <div className="center">חלון אופרציה</div>
+        <div className="center">חלון 1</div>
         <div>
         <div style={styles.lineContainer}>
             <p style={ {marginBottom:"10%"}}> שם משימה </p>

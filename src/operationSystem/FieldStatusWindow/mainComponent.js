@@ -165,7 +165,7 @@ save_to_db(){
         const {lists} = this.props;
         return(
         <div>
-        <div className ="center"> חלון סטטוס שדה</div>
+        <div className ="center"> חלון 3 </div>
         
         <div style={styles.listsStyle}>
         {lists.map(list => 
