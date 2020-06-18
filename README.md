@@ -1,2 +1,1 @@
-# CountingDownSystem
-Final Project - Counting Down System
+COUNT DOWN SYSTEM

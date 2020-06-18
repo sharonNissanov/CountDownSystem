@@ -1,54 +1,235 @@
 import React from 'react'
-//import './react-resizable.css'
-//import './react-grid-layout.css'
-import 'react-grid-layout/css/styles.css' 
-import 'react-resizable/css/styles.css' 
-import GridLayout from 'react-grid-layout';
 import MainOperationWindow from './OperationWindow/MainComponent'
-import MainStatusWindow from './fieldStatus/mainComponent'
+import MainStatusWindow from './FieldStatusWindow/mainComponent'
 import MessageWindow from './MessageWindow/MessageWindow'
+import MainComponentTime from './TimeWindow/MainComponentTime'
+import Logs from './countDownWindow/Logs'
+import axios from 'axios';
+import {connect } from 'react-redux'
+import {change_to_show_chosen_table_state} from "../Actions"
+import ReactDOM from "react-dom";
+import FlexLayout from "flexlayout-react";
+// import { BrowserRouter as Router, Route , useLocation } from "react-router-dom"
+import io from "socket.io-client";
 
 class MainWindow extends React.Component {
-  render() {
-    // layout is an array of objects, see the demo for more complete usage
-const layout = [
-    // {i: 'a', x: 0, y: 0, w: 1, h: 2},
-    {i: 'b', x: 0, y: 0, w: 4, h: 2},
-    {i: 'c', x: 4, y: 1, w: 1, h: 4},
-    {i: 'd', x: 4, y: 0, w: 1, h: 2},
-    {i: 'e', x: 0, y: 2, w: 4, h: 1},
-    {i: 'f', x: 0, y: 3, w: 4, h: 3},
-  ];
-  return (
-    <GridLayout className="layout" layout={layout} cols={12} rowHeight={100} width={3000}>
-      {/* <div   style={{ backgroundColor: 'blue', overflow: "scroll"}}  key="a">a</div> */}
-      <div key="b" style={styles.cardsContainer}>
-        <MainOperationWindow/>
-      </div>
-      <div   style={styles.cardsContainer} key="c">
-        <MainStatusWindow/>
-      </div>
-      <div   style={{ backgroundColor: 'blue'}} key="d">d</div>
-      <div   style={{ backgroundColor: 'blue', overflow:"hidden"}} key="e"><MessageWindow/></div>
-      <div   style={{ backgroundColor: 'blue'}} key="f">f</div>
-    </GridLayout>
+update_data_io() 
+{  //update the data from the db by listening to the socket
 
-// return(
-//   <MainOperationWindow/>
+  try {
+    if(window.location.pathname ==='/display')
+    {
+     
+      const socket = io.connect('http://localhost:4000')
+      socket.on("update_message",( data ,id) => {
+        let chosen_state_id=null
+        let DB_info = null
+        let data_len = null 
+        try {
+            const serializedStateID = localStorage.getItem("chosen_state_id"); 
+            if (serializedStateID !== null) {
+       
+              chosen_state_id = JSON.parse(JSON.parse(serializedStateID ))
+              
+              axios.post('http://localhost:5000/counts/edit/' + id , data  )
+              .then(res => console.log(res.data),
+              socket.emit("table saved to the DB" ,id))
+            
+            
+
+
+            }
+        } 
+        catch (err) 
+        {
+          console.log(err)
+        }
+    })//socket
+    const socket1 = io.connect('http://localhost:4000')
+    socket1.on("table saved to the DB", chosen_state_id => {
+      let  curr_chosen_state_id =null
+      try {
+        const serializedStateID = localStorage.getItem("chosen_state_id"); 
+       
+        if (serializedStateID !== null) {
+
+          curr_chosen_state_id = JSON.parse(JSON.parse(serializedStateID ))
+        }
+    } 
+    catch (err) 
+    {
+      console.log(err)
+    }
+    if(curr_chosen_state_id!==null && curr_chosen_state_id===chosen_state_id )
+    {
+      console.log("table saved to the DB") 
+      axios.get('http://localhost:5000/counts/') //GET REQUEST
+      .then(response => {
+      
+        let DB_info = null
+        let data_len = null
+      if (response.data.length===0) return;
+      data_len= response.data.length
+      DB_info={...response.data}
+      if(DB_info!== null &&  chosen_state_id!==null  )
+      {  
+          for(let i = 0 ; i <data_len ; i++)
+          {   
+            if( DB_info[i]._id===chosen_state_id ) 
+            { 
+              localStorage.removeItem("chosen_state") 
+              let serializedState1 = JSON.stringify(DB_info[i]._system_info_object)
+              localStorage.setItem("chosen_state", JSON.stringify(serializedState1));
+            //  console.log("local storage has changed") 
+
+                window.location.reload()
+            }
+          }
+
+        }
+
+      })//axios
+    }
+
+  })//socket
+  }
+
+}
+
+//} 
+catch (err) 
+{
+    console.log(err)
+}
+}
+
+  render() {
+    const curr_location =window.location.pathname
+    { this.update_data_io()}
+
+  return (
+    
+    <div>
+       {curr_location=== "/display" ? null  :
+        curr_location==="/system"   ?  
+        <button style={{top:"5%",position:"absolute",left:"3%"}} onClick={()=>{
+
+        let newState ={
+          _user_info: this.props.MainWindowReducers._user_info,
+          title: this.props.MainWindowReducers.title,
+          hours_before_target: this.props.MainWindowReducers.hours_before_target,
+          hours_after_target: this.props.MainWindowReducers.hours_after_target,
+          MessageWindow:this.props.MessageWindowReducer.MessageWindow,
+          OperationRows:this.props.OperationWindowReducers.OperationRows,
+          OperationList:this.props.OperationWindowReducers.OperationList,
+          StatusList: this.props.FieldStatusReducers.StatusList,
+          CountDownlists: this.props.CountDownWindowReducers.CountDownlists
+        }
+          console.log("count: SAVE_STATE " , this.props.state);
+          axios.post('http://localhost:5000/counts/add',  newState)
+          .then(res => console.log(res.data  ),  );//promise, after its posted well console our the res.data
+          window.location = '/list';
+        }} >שמור טבלה חדשה  </button>:
+          
+        <button style={{top:"5%",position:"absolute",left:"3%"}}  onClick={()=>{
+          let newState ={
+            _user_info: this.props.MainWindowReducers._user_info,
+            title: this.props.MainWindowReducers.title, 
+            hours_before_target: this.props.MainWindowReducers.hours_before_target,
+            hours_after_target: this.props.MainWindowReducers.hours_after_target,
+            MessageWindow:this.props.MessageWindowReducer.MessageWindow,
+            OperationRows:this.props.OperationWindowReducers.OperationRows,
+            OperationList:this.props.OperationWindowReducers.OperationList,
+            StatusList: this.props.FieldStatusReducers.StatusList,
+            CountDownlists: this.props.CountDownWindowReducers.CountDownlists
+          }
+          //console.log(this.props.CountDownWindowReducers)
+          console.log("count edit: SAVE_STATE " , newState);
+            axios.post('http://localhost:5000/counts/edit/' + curr_location.slice(6), newState)
+            .then(res => console.log(res.data)); 
+           window.location = '/list';
+         }} >שמור טבלה ערוכה </button>
+  } 
+      <div className="row">
+      <div style={styles.MainOperationWindow} className="col-sm-8"><MainOperationWindow /></div>
+      <div style={ styles.MainComponentTime} className="col-sm-4"><MainComponentTime /></div>
+      </div>
+      <div className="row">
+      <div  style={ styles.MessageWindow} className="col"><MessageWindow /></div>
+      </div>
+      <div className="row">
+      <div  className="col-sm-8" style={ styles.Logs}><Logs /></div>
+      <div style={ styles.MainStatusWindow} className="col-sm-4"><MainStatusWindow /></div>
+      
+      </div>
+    </div>
+
 )
   
 }
 }
 
 const styles = {
-  cardsContainer:
-  {
-    width:"100%",
-    //backgroundColor: 'red',
-    height:  "100%",
-    overflow: "scroll"
-    
+  MainOperationWindow:{
+      border: "1px solid",
+      overflow:"scroll",
+      backgroundColor: '#e6f5ff',
+      left:"0.5%",
+      width:"80%",
+      height:"33%",
+      position:"absolute",
   },
-  
+  MainComponentTime:
+  {
+    border: "1px solid",
+    backgroundColor: '#ffcccc',
+    left:"68.8%",
+    width:"30%",
+    right:"0.5%",
+    height:"33%",
+    position:"absolute",
+  },
+  MessageWindow:
+  {
+    border: "1px solid",
+    backgroundColor: '#fff5e6',
+    position:"absolute",
+    top:"50%",
+    position:"absolute",
+    left:"0.5%",
+    height:"7%",
+    overflow:"hidden",
+    width:"66.8%",
+  },
+  Logs:
+  {
+    border: "1px solid",
+    backgroundColor: '#d9f2d9',
+    overflow:"scroll",
+    top:"58%",
+    left:"0.5%",
+    height:"43%",
+    position:"absolute",
+    width:"75%",
+  },
+  MainStatusWindow:{
+    border: "1px solid",
+    backgroundColor: '#efeff5',
+    overflow:"scroll",
+    position:"absolute",
+    top:"50%",
+    left:"68.8%",
+    width:"30%",
+    height:"51%",
+    right:"0.5%",
+  },
 }
-export default MainWindow;
+const mapStateToProps = (state)=> ({
+  MainWindowReducers: state.MainWindowReducers,
+  MessageWindowReducer: state.MessageWindowReducer,
+  OperationWindowReducers: state.OperationWindowReducers,
+  FieldStatusReducers: state.FieldStatusReducers,
+  CountDownWindowReducers: state.CountDownWindowReducers,
+})
+export default connect(mapStateToProps)(MainWindow) ;
+//export default MainWindow;

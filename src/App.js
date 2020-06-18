@@ -1,14 +1,12 @@
 import React from 'react';
-import LoginPage from './LoginPage'
-import MainWindow from './operationSystem/MainWindow'
-
+import "bootstrap/dist/css/bootstrap.min.css";
+import Routes from './SystemManagement/UserManagement/Routes'
+import CreateUser from './SystemManagement/UserManagement/CreateUser'
 function App() {
   return (
-    <div className="App">
-       <MainWindow/>
-       
+    <div>
+      <Routes />
     </div>
   );
 }
-
 export default App;
