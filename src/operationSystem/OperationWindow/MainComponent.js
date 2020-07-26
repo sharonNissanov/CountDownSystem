@@ -3,8 +3,8 @@ import { connect  } from 'react-redux'
 import OperationList from './OperationList'
 import { deleteCardOperation,addRowOperation,deleteRowOperation,addCardOperation, addListOperation,deleteListOperation,changeCheckBoxStateOperation } from '../../Actions';
 import Popup from "reactjs-popup";
-import io from "socket.io-client"
 import axios from 'axios'
+import socket from "../../SystemManagement/socketConfig";
 
 class MainWindow extends Component
 {
@@ -20,9 +20,14 @@ class MainWindow extends Component
 
     changeCheckBoxState =(cardID,listID,checkBoxID)=>
     {
-      console.log(checkBoxID);
+      let login_info_state = localStorage.getItem("login_info");
+      let chosen_info = JSON.parse(JSON.parse(login_info_state));
+
+      if(chosen_info.permissions !== "Viewer")
+      {
       this.props.dispatch(changeCheckBoxStateOperation(cardID,listID,checkBoxID));
       this.save_to_db()
+      }
     }
 
 save_to_db(){
@@ -45,7 +50,6 @@ if(window.location.pathname ==='/display')
         axios.post('http://localhost:5000/counts/edit/' + chosen_state_id, copy_state)
         .then(res => console.log(res.data)).
         finally (function (){
-        let socket = io.connect('http://localhost:4000')
         socket.emit("update_message" ,copy_state,chosen_state_id)
           })
             
@@ -72,15 +76,17 @@ if(window.location.pathname ==='/display')
             modal
             closeOnEscape
             repositionOnResize
+            contentStyle={{width:"auto", height:"auto"}}
             closeOnDocumentClick>
             {close =>(
             <div >
             <form name="addRow" onSubmit={this.handleSubmit}>
-                <label style={{float:"center"}} >
-                    Row Title:
-                    <input  type="text" name="addRow" value={this.state.rowTitle} onChange={this.handleChange}/>
+                <label className="center" style={{float:"center", color:"black"}} >
+                    :שם השורה
+                    <input style={{textAlign:"right"}}  type="text" name="addRow" value={this.state.rowTitle} onChange={this.handleChange}/>
                 </label>
-                 <input type="submit" value="Submit" /> 
+                <br/>
+                 <input  className="left" type="submit" value="אישור" /> 
             </form>  
             <button className="close" onClick={close} style={styles.close}>
             &times;
@@ -102,18 +108,20 @@ if(window.location.pathname ==='/display')
             modal
             closeOnEscape
             repositionOnResize
+            contentStyle={{width:"auto", height:"auto"}}
             closeOnDocumentClick>
             {close =>(
             <div >
             <form name="deleteRow" onSubmit={this.handleSubmit}>
-                <label style={{float:"center"}} >
-                    Row Title:
+                <label  className="center" style={{float:"center", color:"black"}} >
+           
                     <select name= "deleteRow" style={{display:"inline-block", width:"auto"}} onChange={this.handleChange}>
-                    {this.props.operationRows.map((row,i)=>(<option key={i} value={i}>{row}</option>))}
-                    
+                    {this.props.operationRows.map((row,i)=>(<option style={{fontSize:"22px"}} key={i} value={i}>{row}</option>))}
                     </select>
+                    :שם השורה
                 </label>
-                 <input type="submit" value="Submit" /> 
+                <br/>
+                 <input  className="left" type="submit" value="אישור" /> 
             </form>  
             <a className="close" onClick={close} style={styles.close}>
             &times;
@@ -173,8 +181,16 @@ if(window.location.pathname ==='/display')
       }
       if(event.target.name === 'deleteList')
       {
-          console.log(this.state.deleteListID)
-        this.props.dispatch(deleteListOperation(this.state.deleteListID));
+          if(this.state.deleteListID >= this.props.lists.length)
+          {
+            this.props.dispatch(deleteListOperation(this.props.lists[0].listID));
+            this.setState({deleteListID:0})
+          }
+          else
+          {
+            this.props.dispatch(deleteListOperation(this.props.lists[this.state.deleteListID].listID));
+          }
+          
       }
     
    }   
@@ -201,17 +217,19 @@ if(window.location.pathname ==='/display')
             modal
             closeOnEscape
             repositionOnResize
+            contentStyle={{width:"auto", height:"auto"}}
             closeOnDocumentClick>
             {close =>(
             <div >
             <form name="deleteList" onSubmit={(event)=>this.handleSubmit(event,"closeWindow")}>
-                <label style={{float:"center"}} >
-                    List Number:
-                    <select name= "deleteList" style={{display:"inline-block", width:"auto"}} onChange={this.handleChange}>
-                    {this.props.lists.map((list,i)=>(<option key={i} value={list.listID}>{i+1}</option>))}
+                <label style={{float:"center",color:"black"}} >
+               
+                    <select name= "deleteList" style={{display:"inline-block", width:"auto"}} onChange={this.handleChange} value={this.state.deleteListID}>
+                    {this.props.lists.map((list,i)=>(<option style={{fontSize:"22px"}} key={i} value={i}>{i+1}</option>))}
                     </select>
+                    :מספר רשימה
                 </label><br/>
-                 <input type="submit" value="Submit" /> 
+                 <input type="submit" value="אישור" /> 
             </form>  
             <a className="close" onClick={close} style={styles.close}>
             &times;
@@ -230,7 +248,7 @@ if(window.location.pathname ==='/display')
         <div>
         {this.addRow()}
         {this.deleteRow()}
-        <div className="center">חלון 1</div>
+        <div className="center">חלון אופרציה</div>
         <div>
         <div style={styles.lineContainer}>
             <p style={ {marginBottom:"10%"}}> שם משימה </p>

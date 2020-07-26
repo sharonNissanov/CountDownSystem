@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {connect } from 'react-redux'
-import axios from 'axios';
-import { Link } from 'react-router-dom'; //link to different routs
+import axios from 'axios'
+import { Link } from 'react-router-dom'
 import Spinner from "../Spinner"
 
 
@@ -16,9 +16,8 @@ class UsersList extends Component {
         };
       }
    componentDidMount() {
-    axios.get('http://localhost:5000/users/') //GET REQUEST
+    axios.get('http://localhost:5000/users/') //GET REQUEST - gets all the tables from the DB
       .then(response => {
-      if (response.data.length===0)return;
       this.setState({ DB_users_info :response.data, data_length:response.data.length, spinner_on:false, })
     })
 
@@ -64,9 +63,9 @@ show_all_users_fromDB(){
       temp.push(<tr key={i}>
         <th>
         {(this.state.curr_user.username === this.state.DB_users_info[i].user_info.username &&
-        this.state.curr_user.permissions === this.state.DB_users_info[i].user_info.permissions  ) ||  this.state.DB_users_info[i].user_info.username ==="sharon"? 
+        this.state.curr_user.permissions === this.state.DB_users_info[i].user_info.permissions)|| this.state.DB_users_info[i].user_info.username ==="sharonN" ? 
         <div style={{color:"red"}}onClick={()=>alert("פעולה לא חוקית")}>
-       משתמש נוכחי 
+       לא ניתן למחוק
         </div>
         
        : <Link to={"/usersList"}   onClick={()=>

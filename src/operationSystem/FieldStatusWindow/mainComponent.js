@@ -3,13 +3,14 @@ import { connect  } from 'react-redux'
 import StatusList from './StatusList'
 import Popup from "reactjs-popup";
 import { deleteButtonFieldStatus, addButtonFieldStatus ,addCardFieldStatus, deleteCardFieldStatus,deleteListFieldStatus, addListFieldStatus,changeColorButtonFieldStatus } from "../../Actions";
-import io from "socket.io-client"
 import axios from 'axios'
+import socket from "../../SystemManagement/socketConfig";
+
 class MainComponent extends Component
 {
     state=
     {
-        deleteList:"",
+        deleteList:0,
         addListTitle:"",
     }
     
@@ -32,7 +33,6 @@ save_to_db(){
             axios.post('http://localhost:5000/counts/edit/' + chosen_state_id, copy_state)
             .then(res => console.log(res.data)).
             finally (function (){
-            let socket = io.connect('http://localhost:4000')
             socket.emit("update_message" ,copy_state,chosen_state_id)
             })
                 
@@ -64,15 +64,15 @@ save_to_db(){
         event.preventDefault();
         if(event.target.name === "deleteList")
         {
-            if(this.state.deleteList === "")
+            if(this.state.deleteList >= this.props.lists.length)
             {
-                this.props.dispatch(deleteListFieldStatus(this.props.lists[0].listID));
+              this.props.dispatch(deleteListFieldStatus(this.props.lists[0].listID));
+              this.setState({deleteListID:0})
             }
             else
             {
-                this.props.dispatch(deleteListFieldStatus(this.state.deleteList));
-            }  
-            this.setState({deleteList: ""})
+              this.props.dispatch(deleteListFieldStatus(this.props.lists[this.state.deleteList].listID));
+            }
         }
         else if(event.target.name === "addList")
             this.props.dispatch(addListFieldStatus(this.state.addListTitle));
@@ -81,9 +81,15 @@ save_to_db(){
 
 
    changeColor =(cardID,buttonid,listID)=>
-   {    
-       this.props.dispatch(changeColorButtonFieldStatus(cardID,buttonid,listID))
-    this.save_to_db()
+   {     
+        let login_info_state = localStorage.getItem("login_info");
+        let chosen_info = JSON.parse(JSON.parse(login_info_state));
+
+        if(chosen_info.permissions !== "Viewer")
+        {
+            this.props.dispatch(changeColorButtonFieldStatus(cardID,buttonid,listID))
+            this.save_to_db()
+        }
    }
    
     deleteButton = (cardID,buttonID,listID)=>
@@ -98,8 +104,7 @@ save_to_db(){
 
     addCard = ( listID,cardTitle, cardComments ) =>
     {
-        this.props.dispatch(addCardFieldStatus(listID,cardTitle, cardComments)); 
-        console.log(this.props.state)             
+        this.props.dispatch(addCardFieldStatus(listID,cardTitle, cardComments));          
     }
 
     deleteCard = (listID, cardID) =>
@@ -114,13 +119,15 @@ save_to_db(){
             <Popup
             trigger={ <button style={{float:"right",width:"auto",height:"auto", marginLeft:"5px", marginRight:"5px"}}>הוספת רשימה</button>}
             modal
-            closeOnDocumentClick>
-           <form name="addList" onSubmit={this.handleSubmit} >
-                <label style={{float:"center"}} >
-                    List Title:
-                    <input  type="text" name="addList" onChange={this.handleChange} />
+            closeOnDocumentClick
+            contentStyle={{width:"auto", height:"auto"}}>
+           <form name="addList" onSubmit={this.handleSubmit}  >
+                <label className="center" style={{color:"black"}} >
+                :שם הרשימה
+                    <input style={{textAlign:"right"}}  type="text" name="addList" onChange={this.handleChange} />
                 </label>
-                 <input type="submit" value="Submit" /> 
+                <br/>
+                 <input className="left" type="submit" value="אישור" /> 
             </form>  
           </Popup>)
         else
@@ -133,7 +140,7 @@ save_to_db(){
     {
         let inputListArray=[];
         this.props.lists.map((list,i)=>{
-        inputListArray.push(<option key={i} value={list.listID}>{list.listTitle}</option>)})
+        inputListArray.push(<option style={{fontSize:"22px"}} key={i} value={i}>{list.listTitle}</option>)})
         return inputListArray;
         
    }
@@ -143,17 +150,21 @@ save_to_db(){
        if(window.location.pathname.search("display") == -1 && this.props.lists.length>0)
            return(
            <Popup
+           style={{width:"20px"}}
            trigger={ <button style={{float:"right",cursor:"help",display:"inline"}}>מחיקת רשימה</button>}
            modal
+           contentStyle={{width:"auto", height:"auto"}}
            closeOnDocumentClick>
           <form name="deleteList" onSubmit={this.handleSubmit}>
-          <label style={{display:"inline-block"}}>
-                Card Title:
-               <select name= "deleteList" style={{display:"inline-block", width:"auto"}} onChange={this.handleChange}>
+          <label style={{display:"inline-block", float:"right", color:"black"}}>
+             
+               <select name= "deleteList" style={{display:"inline-block", width:"auto"}} onChange={this.handleChange} value={this.state.deleteList}>
                    {this.makeSelectInput()}
                </select>
+               :שם כרטיס
            </label>
-                <input type="submit" value="Submit" /> 
+           <br/><br/>
+                <input className="left"  type="submit" value="אישור" /> 
            </form>  
          </Popup>)
          else
@@ -165,7 +176,7 @@ save_to_db(){
         const {lists} = this.props;
         return(
         <div>
-        <div className ="center"> חלון 3 </div>
+        <div className ="center"> חלון סטטוס שדה</div>
         
         <div style={styles.listsStyle}>
         {lists.map(list => 

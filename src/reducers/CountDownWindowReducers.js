@@ -5,20 +5,8 @@ let initialState = {
     todClock:"",
     CountDownlists:  
      {
-       
-        resources:[
-            // {title: "משימה 1", key:"0"},
-            // {title: "משימה 2", key:"1"},
-            // {title: "משימה 3", key:"2"},
-            // {title: "משימה 4", key:"3"},
-            // {title: "משימה 5", key:"4"},
-            // {title: "משימה 6", key:"5"},
-        ],
-        events:[
-            // {id:1,title:"sharon",startHour:3,endHour:4, columID:0, comments:"Dana", color:"green"},
-            // {id:2,title:"dana",startHour:5,endHour:7, columID:3, comments:"Shoky"},
-            // {id:3,title:"lior",startHour:1,endHour:2, columID:4, comments: "Tooffee"}
-        ]
+        resources:[ ],
+        events:[]
      }
 }
 try {
@@ -29,8 +17,6 @@ try {
     }
     else{
         let chosen_state = JSON.parse(JSON.parse(serializedState ))
-        console.log(chosen_state.MessageWindow)
-        console.log(chosen_state)
         initialState={...chosen_state}
     }
     
@@ -93,7 +79,7 @@ const CountDownWindowReducers = (state = initialState, action) =>{
                 resources:newResourcesList,
                 events:newEventsList
              } 
-             console.log(state);
+            
              return {...state,CountDownlists: CountDownlistsNew };    
         };
         case CONSTANTS.ADD_ENTITY_COUNTDOWN:{
@@ -111,13 +97,21 @@ const CountDownWindowReducers = (state = initialState, action) =>{
         }
         case CONSTANTS.ADD_EVENT_COUNTDOWN:
         {    
-        
+            let newID;
+            if(state.CountDownlists.events.length == 0)
+            {
+                newID=0;
+            }
+            else
+            {
+                newID = (state.CountDownlists.events[state.CountDownlists.events.length-1].id+1);
+            }
         const CountDownlistsNew = {
             resources:[...state.CountDownlists.resources],
             events:[
                 ...state.CountDownlists.events,
                 {
-                    id:(state.CountDownlists.events[state.CountDownlists.events.length-1].id+1),
+                    id:newID,
                     title:action.payload.title,
                     startHour:action.payload.startHour,
                     endHour:action.payload.endHour, 

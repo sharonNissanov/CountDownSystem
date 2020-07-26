@@ -3,26 +3,19 @@ import MainOperationWindow from './OperationWindow/MainComponent'
 import MainStatusWindow from './FieldStatusWindow/mainComponent'
 import MessageWindow from './MessageWindow/MessageWindow'
 import MainComponentTime from './TimeWindow/MainComponentTime'
+import CountDownMainWindow from './countDownWindow/CountDownMainWindow'
 import axios from 'axios';
 import {connect } from 'react-redux'
-import {change_to_show_chosen_table_state} from "../Actions"
-import ReactDOM from "react-dom";
-import FlexLayout from "flexlayout-react";
-import TestScheduler from './././countDownWindow/TestScheduler'
-
-
-// import { BrowserRouter as Router, Route , useLocation } from "react-router-dom"
-import io from "socket.io-client";
+import socket from "../SystemManagement/socketConfig";
 
 class MainWindow extends React.Component {
+
 update_data_io() 
 {  //update the data from the db by listening to the socket
 
   try {
     if(window.location.pathname ==='/display')
     {
-     
-      const socket = io.connect('http://localhost:4000')
       socket.on("update_message",( data ,id) => {
         let chosen_state_id=null
         let DB_info = null
@@ -34,12 +27,8 @@ update_data_io()
               chosen_state_id = JSON.parse(JSON.parse(serializedStateID ))
               
               axios.post('http://localhost:5000/counts/edit/' + id , data  )
-              .then(res => console.log(res.data),
-              socket.emit("table saved to the DB" ,id))
-            
-            
-
-
+              .then(res => console.log(res.data))
+              .finally(function (){socket.emit("table saved to the DB" ,id)})
             }
         } 
         catch (err) 
@@ -47,8 +36,7 @@ update_data_io()
           console.log(err)
         }
     })//socket
-    const socket1 = io.connect('http://localhost:4000')
-    socket1.on("table saved to the DB", chosen_state_id => {
+    socket.on("table saved to the DB", chosen_state_id => {
       let  curr_chosen_state_id =null
       try {
         const serializedStateID = localStorage.getItem("chosen_state_id"); 
@@ -64,7 +52,6 @@ update_data_io()
     }
     if(curr_chosen_state_id!==null && curr_chosen_state_id===chosen_state_id )
     {
-      console.log("table saved to the DB") 
       axios.get('http://localhost:5000/counts/') //GET REQUEST
       .then(response => {
       
@@ -82,15 +69,14 @@ update_data_io()
               localStorage.removeItem("chosen_state") 
               let serializedState1 = JSON.stringify(DB_info[i]._system_info_object)
               localStorage.setItem("chosen_state", JSON.stringify(serializedState1));
-            //  console.log("local storage has changed") 
-
-                window.location.reload()
+             
             }
           }
 
         }
 
-      })//axios
+      }).finally(function ()
+      {window.location.reload()})//axios
     }
 
   })//socket
@@ -127,11 +113,10 @@ catch (err)
           StatusList: this.props.FieldStatusReducers.StatusList,
           CountDownlists: this.props.CountDownWindowReducers.CountDownlists
         }
-          console.log("count: SAVE_STATE " , this.props.state);
           axios.post('http://localhost:5000/counts/add',  newState)
-          .then(res => console.log(res.data  ),  );//promise, after its posted well console our the res.data
-          window.location = '/list';
-        }} >שמור טבלה חדשה  </button>:
+          .then(res => console.log(res.data  ),  )//promise, after its posted well console our the res.data
+          .finally (function (){ window.location = '/list'})
+        }} >שמור פעילות חדשה  </button>:
           
         <button style={{top:"5%",position:"absolute",left:"3%"}}  onClick={()=>{
           let newState ={
@@ -145,22 +130,23 @@ catch (err)
             StatusList: this.props.FieldStatusReducers.StatusList,
             CountDownlists: this.props.CountDownWindowReducers.CountDownlists
           }
-          //console.log(this.props.CountDownWindowReducers)
-          console.log("count edit: SAVE_STATE " , newState);
             axios.post('http://localhost:5000/counts/edit/' + curr_location.slice(6), newState)
-            .then(res => console.log(res.data)); 
-           window.location = '/list';
-         }} >שמור טבלה ערוכה </button>
+            .then(res => console.log(res.data))
+            .finally (function (){ window.location = '/list'})
+         }} >שמור עריכת פעילות </button>
   } 
       <div className="row">
       <div style={styles.MainOperationWindow} className="col-sm-8"><MainOperationWindow /></div>
-      <div style={ styles.MainComponentTime} className="col-sm-4"><MainComponentTime /></div>
+      <div   style={ styles.MainComponentTime} className="col-sm-4"><MainComponentTime /></div>
       </div>
       <div className="row">
       <div  style={ styles.MessageWindow} className="col"><MessageWindow /></div>
       </div>
       <div className="row">
-      <div  className="col-sm-8" style={ styles.Logs}><TestScheduler /></div>
+     
+      <div  className="col-sm-8"   style={ styles.Logs} > 
+      <div style={{textAlign:"center" }} >חלון ספירה יורדת</div>
+        <div ><CountDownMainWindow /></div></div>
       <div style={ styles.MainStatusWindow} className="col-sm-4"><MainStatusWindow /></div>
       
       </div>

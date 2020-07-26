@@ -15,41 +15,44 @@ class countDownAddEventButton extends Component
 
     timeValidator =(inputTime) =>
     {
+        if(inputTime!= "" ||inputTime != null)
+        {
         let hourInput = parseInt(inputTime.substring(1,3));
         let minInput = parseInt(inputTime.substring(4));
         if(inputTime[0] == "-")
         {
             let hourBefore = parseInt(this.props.hours_before_target.substring(0,2));
             let minBefore  = parseInt(this.props.hours_before_target.substring(3));
-             return (hourInput<=hourBefore && minInput<60)
+            return ((hourBefore == hourInput && minInput == 0) || (hourInput<hourBefore && minInput<60))
 
         }
         if(inputTime[0] == "+")
         {
             let hourafter = parseInt(this.props.hours_after_target.substring(0,2));
             let minafter  = parseInt(this.props.hours_after_target.substring(3));
-             return (hourInput<=hourafter && minInput<60)
+             return ((hourInput == hourafter && minInput == 0) || (hourInput<hourafter && minInput<60))
         }
+    }
     }
   
     InputValidation =()=>
     {
         if(this.timeValidator(this.state.startHour) && this.timeValidator(this.state.endHour) && this.state.title !="") 
-             return <input type="submit" value="Submit" />  
+             return <input className="left" type="submit" value="אישור" />  
     }    
 
     handleChange=(event)=>
     {
         if(event.target.name === 'title')
-        this.setState({title: event.target.value})
+            this.setState({title: event.target.value})
         else if(event.target.name === 'startHour')
-        this.setState({startHour: event.target.value})
+            this.setState({startHour: event.target.value})
         else if(event.target.name === 'endHour')
-        this.setState({endHour: event.target.value})
+            this.setState({endHour: event.target.value})
         else if(event.target.name === 'comments')
-        this.setState({comments: event.target.value})
+            this.setState({comments: event.target.value})
         else if(event.target.name === 'entity')
-        this.setState({entity: event.target.value})
+            this.setState({entity: event.target.value})
 
     }
 
@@ -72,7 +75,7 @@ class countDownAddEventButton extends Component
          let inputResourceArray=[];
          for(let i=0;i<this.props.lists.length;i++)
          {
-            inputResourceArray.push(<option key={i} value={this.props.lists[i].key}>{this.props.lists[i].title}</option>)
+            inputResourceArray.push(<option style={{fontSize:"22px"}}key={i} value={this.props.lists[i].key}>{this.props.lists[i].title}</option>)
          }
          return inputResourceArray;
      }
@@ -90,31 +93,41 @@ class countDownAddEventButton extends Component
         closeOnDocumentClick>
           {close =>(
               <div>
-       <form onSubmit={this.handleSubmit}>
-            <label >
-                Mission Title:
-                <input type="text" name="title" onChange={this.handleChange} value={this.state.title}/>
-            </label>
-            <label style={{rightMargin:"10px"}}>
-                Starting Hour
-                <input name="startHour" placeholder="(+|-)HH:MM" pattern="[+|-]{1}[0-9]{2}:[0-5]{1}[0-9]{1}"
-                     onChange={this.handleChange} style={{width:"100px"}} value={this.state.startHour} required></input>
-          
-            </label>
-            <label>
-               Ending Hour
-               <input name="endHour" placeholder="(+|-)HH:MM" pattern="[+|-]{1}[0-9]{2}:[0-5]{1}[0-9]{1}"
-                     onChange={this.handleChange} style={{width:"100px"}} value={this.state.endHour} required></input>
-            </label>
+       <form className="center"  onSubmit={this.handleSubmit}>
+     
             
-            <label style={{display:"inline-block"}}>
-                 Entity:
-                <select name= "entity" style={{display:"inline-block", width:"150px"}} onChange={this.handleChange} value={this.state.entity}>
-                    {this.makeSelectInput()}
+        <label style={{width:"auto",color:"black"}}>
+            :שם אירוע
+            <input style={{ display:"inline-block", textAlign:"right"}}  type="text" name="title" onChange={this.handleChange} value={this.state.title}/>
+        </label>
+        <br/>
+
+        <label style={{display:"inline-block" , color:"black"}}>
+            
+            <select name= "entity" style={{display:"inline-block", width:"150px"}} onChange={this.handleChange} value={this.state.entity}>
+                {this.makeSelectInput()}
                 </select>
-            </label>
-            <textarea name="comments" onChange={this.handleChange} placeholder={"Extra Comments"} value={this.state.comments}/>
-             {/* <input type="submit" value="Submit" />  */}
+            :בחירת עמודה
+        </label>
+
+        <br/>
+
+        <label style={{ color:"black"}} >
+        
+        <input name="endHour" placeholder="(+|-)HH:MM" pattern="[+|-]{1}[0-9]{2}:[0-5]{1}[0-9]{1}"
+                onChange={this.handleChange} style={{width:"100px"}} value={this.state.endHour} required></input>
+                :שעת סיום
+        </label>
+
+         <label style={{rightMargin:"10px", color:"black"}}>
+    
+        <input name="startHour" placeholder="(+|-)HH:MM" pattern="[+|-]{1}[0-9]{2}:[0-5]{1}[0-9]{1}"
+                onChange={this.handleChange} style={{width:"100px"}} value={this.state.startHour} required></input>
+                :שעת התחלה
+        </label>
+
+
+            <textarea style={{ textAlign:"right"}}   name="comments" onChange={this.handleChange} placeholder={"הערות נוספות"} value={this.state.comments}/>
             {this.InputValidation()}
         </form>  
         <a className="close" onClick={close} style={styles.close}>

@@ -4,8 +4,8 @@ import React from "react";
 import {connect } from 'react-redux'
 import Popup from "reactjs-popup";
 import { updateMessage } from '../../Actions'
-import io from "socket.io-client";
 import axios from 'axios';
+import socket from "../../SystemManagement/socketConfig";
 
 class  MessageWindow  extends React.Component  {
   state= 
@@ -33,7 +33,6 @@ class  MessageWindow  extends React.Component  {
           axios.post('http://localhost:5000/counts/edit/' + chosen_state_id, copy_state)
           .then(res => console.log(res.data)).
           finally (function (){
-          let socket = io.connect('http://localhost:4000')
           socket.emit("update_message" ,copy_state,chosen_state_id)
             })
               
@@ -52,7 +51,6 @@ class  MessageWindow  extends React.Component  {
   }
   handleChange=(event)=>
    {
-     console.log(event.target.value)
      this.setState({message: event.target.value})
    }
 
@@ -63,18 +61,19 @@ class  MessageWindow  extends React.Component  {
         let success = this.save_to_db()
      }   
    editMessage=()=>
-   { //CHECK IF EDITABLE
+   { 
      if(true)
       return(
         <Popup
         trigger={<button style={{float:"right",position:"absolute", width:"25px", height:"25px"}}>+</button>}
         modal
+        contentStyle={{textAlign:"right"}}
         closeOnDocumentClick>
           {close =>(
               <div>
                <form onSubmit={this.handleSubmit}>
-              <textarea name="comments" onChange={this.handleChange} defaultValue={this.state.message} style={{height:"250px"}}/>
-              <input type="submit" value="Submit" /> 
+              <textarea name="comments" onChange={this.handleChange} defaultValue={this.state.message} style={{height:"250px", textAlign:"right"}}/>
+              <input type="submit" value="אישור" /> 
               </form>  
               <a className="close" onClick={close} style={styles.close}>
                &times;
