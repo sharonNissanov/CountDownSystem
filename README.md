@@ -4,7 +4,7 @@
 
 ### Prerequisite (Windows)
  - Install Node.JS + NPM 
- - Install MongoDB https://www.mongodb.com/try/download/community (Restart required)
+ - Install MongoDB (Restart required)
    
 ### Setup & Run
 - Clone or download this repository https://github.com/sharonNissanov/CountDownSystem
