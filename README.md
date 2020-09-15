@@ -3,7 +3,7 @@
 ## Installation Process
 
 ### Prerequisite (Windows)
- - Install Node.JS + NPM https://github.com/danapesah/CountingDownSystem
+ - Install Node.JS + NPM 
  - Install MongoDB https://www.mongodb.com/try/download/community (Restart required)
    
 ### Setup & Run
