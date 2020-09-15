@@ -29,39 +29,39 @@ constructor(props) {
     data_length:0,
     valid_user_input: false,
     popup_message:"יש למלא את השדה החסר" ,
-    spinner_on:true,
+  //  spinner_on:true,
 
   }
 }
-componentDidMount() {
-  axios.get('http://localhost:5000/users/') //GET REQUEST - gets all the tables from the DB
-    .then(response => {
-    if (response.data.length===0)return;
-    this.setState({ DB_users_info :response.data, 
-      data_length:response.data.length, spinner_on:false,})
+// componentDidMount() {
+//   axios.get('http://localhost:5000/users/') //GET REQUEST - gets all the tables from the DB
+//     .then(response => {
+//     if (response.data.length===0)return;
+//     this.setState({ DB_users_info :response.data, 
+//       data_length:response.data.length, spinner_on:false,})
 
-    try {
-      const serializedState = localStorage.getItem("chosen_state");
-      const serializedStateID = localStorage.getItem("chosen_state_id");
-      const edit_state_id = localStorage.getItem("edit_state_id");
-      if (serializedStateID !== null ) {
-        localStorage.removeItem("chosen_state_id") 
-      }
-      if (serializedState !== null ) {
-        localStorage.removeItem("chosen_state") 
-      }
-      if (edit_state_id !== null ) {
-        localStorage.removeItem("edit_state_id") 
-      }
-    } catch (err) {
-      return err;
-    }
-  })
+//     try {
+//       const serializedState = localStorage.getItem("chosen_state");
+//       const serializedStateID = localStorage.getItem("chosen_state_id");
+//       const edit_state_id = localStorage.getItem("edit_state_id");
+//       if (serializedStateID !== null ) {
+//         localStorage.removeItem("chosen_state_id") 
+//       }
+//       if (serializedState !== null ) {
+//         localStorage.removeItem("chosen_state") 
+//       }
+//       if (edit_state_id !== null ) {
+//         localStorage.removeItem("edit_state_id") 
+//       }
+//     } catch (err) {
+//       return err;
+//     }
+//   })
 
-  .catch((error) => { //catch errors 
-    console.log(error);
-  })
-}
+//   .catch((error) => { //catch errors 
+//     console.log(error);
+//   })
+// }
 
 check_input_and_save(_user_name , _password ,_permissions )
 {//check if the  input is legal and if the username isnt already exist in the db
