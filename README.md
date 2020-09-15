@@ -13,6 +13,6 @@
 - Run frontend: ```npm start```
 
 ###  login 
--Enter the username: user
+- Enter the username: user
 - Enter the password: sharonsProject
 
