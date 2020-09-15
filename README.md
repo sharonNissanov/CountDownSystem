@@ -12,7 +12,7 @@
 - Run backend locally: ```cd backend & npm start```
 - Run frontend: ```npm start```
 
-###  login 
+###  Login 
 - Enter the username: user
 - Enter the password: sharonsProject
 
